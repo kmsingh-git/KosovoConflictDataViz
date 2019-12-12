@@ -18,6 +18,15 @@
       <h3>Summary Stats for selected region</h3>
     </div>
     <script>
+      //TODO
+
+      //Title
+      //Axis Labels x2
+      //Make circle radii in proportion to num_migrations
+
+      CSV_SOURCE = "http://0.0.0.0:8000/summary.csv";
+      OPACITY_LEVEL = 0.7;
+      DOTRADIUS = 4.5;
 
       d3.select("#chart").append("form").attr("id", "selection");
       
@@ -38,11 +47,6 @@
       d3.select("form").append("label")
         .attr("for", "watercolorradio")
         .text(" Watercolor rendering ");
-
-      //TODO
-
-      //Title
-      //Axis Labels x2
 
       var bottomLat = 41.810;
       var topLat = 43.285;
@@ -65,14 +69,6 @@
           .attr("width", w)
           .attr("height", h);
 
-      // var background = svg
-      //   .append("rect")
-      //     .attr("width", w)
-      //     .attr("height", h)
-      //     .attr("x", 0)
-      //     .attr("y", 0)
-      //     .attr("fill", "yellow");
-
       var terrainimage = svg
         .append("image")
           .attr("id", "terrainimage")
@@ -92,13 +88,13 @@
           .attr("y", margin.top);
 
       d3.select("#terrainradio").on("click", function(){
-        d3.select("#terrainimage").attr("opacity", 1);
+        d3.select("#terrainimage").attr("opacity", OPACITY_LEVEL);
         d3.select("#watercolorimage").attr("opacity", 0);
       })
 
       d3.select("#watercolorradio").on("click", function(){
         d3.select("#terrainimage").attr("opacity", 0);
-        d3.select("#watercolorimage").attr("opacity", 1);
+        d3.select("#watercolorimage").attr("opacity", OPACITY_LEVEL);
       })
 
       var xScale = d3.scaleLinear()
@@ -123,13 +119,27 @@
        .call(xAxis);
 
       seconddiv = d3.select("#summary");
-      seconddiv.append("p").text("Total Migrations: ").attr("id", "Migrations");
-      seconddiv.append("p").text("Total Killings: ").attr("id", "Killings");
-      seconddiv.append("p").text("Male Migrations: ").attr("id", "MaleMigrations");
-      seconddiv.append("p").text("Female Migrations: ").attr("id", "FemaleMigrations");
+      seconddiv.append("p").text("Municipality ID: ")
+        .attr("id", "mcode")
+      seconddiv.append("p").text("Total Migrations: ")
+        .attr("id", "migrations");
+      seconddiv.append("p").text("Total Killings: ")
+        .attr("id", "killings");
+      seconddiv.append("p").text("NATO Airstrikes: ")
+        .attr("id", "nato");
+      seconddiv.append("p").text("Reports of KLA causalties: ")
+        .attr("id", "kla");
+
+      function updateStats(id, summary){
+        d3.select("#mcode").text("Municipality ID: " + id);
+        d3.select("#migrations").text("Total Migrations: " + summary.migrations);
+        d3.select("#killings").text("Total Killings: " + summary.killings);
+        d3.select("#nato").text("NATO Airstrikes: " + summary.nato_airstrikes);
+        d3.select("#kla").text("Reports of KLA causalties: " + summary.kla);
+      }
 
       //DATA
-      d3.csv("http://0.0.0.0:8000/summary.csv", function(d) {
+      d3.csv(CSV_SOURCE, function(d) {
         return {
           mcode : d["mcode"],
           killings : +d["total_killings"],
@@ -140,16 +150,41 @@
           long : +d["mean_longitude"]
         };
       }).then(function(data){
-        console.log(data[0])
+        var summary = {};
+        for (i = 0; i < data.length; i++){
+          //Add points for each data
+          row = data[i];
+          if (!isNaN(row.long) && !isNaN(row.lat)){
+            d3.select("svg").append("circle")
+            .attr("cx", xScale(row.long))
+            .attr("cy", yScale(row.lat))
+            .attr("r", DOTRADIUS)
+            .attr("id", row.mcode);
+
+            summary[row.mcode] = {
+              killings: row.killings,
+              migrations : row.migrations,
+              nato_airstrikes : row.nato_airstrikes,
+              kla : row.kla
+            };
+          }
+        }
+
+        //Add event listeners
+        d3.selectAll("circle").on("click", function(){
+          d3.selectAll("circle").attr("fill","black");
+          d3.selectAll("circle").attr("r",DOTRADIUS);
+          var circle = d3.select(this);
+          circle.attr("fill", "#BF3EFF");
+          oldR = circle.attr("r");
+          circle.transition().duration(350).attr("r", oldR*1.75);
+          var id = circle.attr("id");
+          updateStats(id, summary[id]);
+        })
       }).catch(function(error){
         console.log("ERROR");
         console.log(error);
       });
-
-      
-
-
-
 
       document.getElementById("terrainradio").click();
 
