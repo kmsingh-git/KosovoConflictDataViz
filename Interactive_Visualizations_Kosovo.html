@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Interactive Visualization of Kosovo Migration and Killing Data</title>
+    <script src="https://d3js.org/d3.v5.js"></script>
+  </head>
+
+  <body>
+
+    <h2>Interactive Visualization of Kosovo Migration and Killing Data</h2>
+    <div id="chart" style="width: 400px; float: left;">
+      <h3>Graph</h3>
+      <p>Click a point to show its summary stats</p>
+    </div>
+
+    <div id="summary" style="width: 400px; float: left;">
+      <h3>Summary Stats for selected region</h3>
+    </div>
+    <script>
+
+      d3.select("#chart").append("form").attr("id", "selection");
+      
+      d3.select("form").append("input")
+        .attr("type", "radio")
+        .attr("id", "terrainradio")
+        .attr("name", "mode");
+
+      d3.select("form").append("label")
+        .attr("for", "terrainradio")
+        .text(" Terrain Rendering ");
+
+      d3.select("form").append("input")
+        .attr("type", "radio")
+        .attr("id", "watercolorradio")
+        .attr("name", "mode");
+
+      d3.select("form").append("label")
+        .attr("for", "watercolorradio")
+        .text(" Watercolor rendering ");
+
+      //TODO
+
+      //Title
+      //Axis Labels x2
+
+      var bottomLat = 41.810;
+      var topLat = 43.285;
+      var leftLong = 19.995;
+      var rightLong = 21.797;
+
+      var w = 450;
+      var h = 450;
+
+      //I adjusted these carefully to make sure the axes 'snug-ly' wrap around the map image
+      var margin = {top: 41, right: 59, bottom: 41, left: 59};
+      var innerWidth = w - margin.left - margin.right;
+      var innerHeight = h - margin.top - margin.bottom;
+
+      d3.select("#chart").attr("style", `width: ${w}px; float: left;`)
+
+      //Create SVG
+      var svg = d3.select("#chart")
+        .append("svg")
+          .attr("width", w)
+          .attr("height", h);
+
+      // var background = svg
+      //   .append("rect")
+      //     .attr("width", w)
+      //     .attr("height", h)
+      //     .attr("x", 0)
+      //     .attr("y", 0)
+      //     .attr("fill", "yellow");
+
+      var terrainimage = svg
+        .append("image")
+          .attr("id", "terrainimage")
+          .attr("width", innerWidth)
+          .attr("xlink:href", "terrain.jpeg")
+          .attr("height", innerHeight)
+          .attr("x", margin.left)
+          .attr("y", margin.top);
+
+      var watercolorimage = svg
+        .append("image")
+          .attr("id", "watercolorimage")
+          .attr("width", innerWidth)
+          .attr("xlink:href", "watercolor.jpeg")
+          .attr("height", innerHeight)
+          .attr("x", margin.left)
+          .attr("y", margin.top);
+
+      d3.select("#terrainradio").on("click", function(){
+        d3.select("#terrainimage").attr("opacity", 1);
+        d3.select("#watercolorimage").attr("opacity", 0);
+      })
+
+      d3.select("#watercolorradio").on("click", function(){
+        d3.select("#terrainimage").attr("opacity", 0);
+        d3.select("#watercolorimage").attr("opacity", 1);
+      })
+
+      var xScale = d3.scaleLinear()
+        .domain([leftLong, rightLong])
+        .range([0, innerWidth]);
+
+      var yScale = d3.scaleLinear()
+        .domain([bottomLat, topLat])
+        .range([innerHeight, 0]); //Inverting it since y starts at top
+
+      var xAxis = d3.axisBottom(xScale);
+      var yAxis = d3.axisLeft(yScale);
+
+      svg.append("g")
+       .attr("class", "yAxis")
+       .attr("transform", `translate(${margin.left},${margin.top})`)
+       .call(yAxis);
+
+      svg.append("g")
+       .attr("class", "xAxis")
+       .attr("transform", `translate(${margin.left},${h-margin.bottom})`)
+       .call(xAxis);
+
+      seconddiv = d3.select("#summary");
+      seconddiv.append("p").text("Total Migrations: ").attr("id", "Migrations");
+      seconddiv.append("p").text("Total Killings: ").attr("id", "Killings");
+      seconddiv.append("p").text("Male Migrations: ").attr("id", "MaleMigrations");
+      seconddiv.append("p").text("Female Migrations: ").attr("id", "FemaleMigrations");
+
+      //DATA
+      d3.csv("http://0.0.0.0:8000/summary.csv", function(d) {
+        return {
+          mcode : d["mcode"],
+          killings : +d["total_killings"],
+          migrations : +d["total_migrations"],
+          nato_airstrikes : +d["num_airstrikes"],
+          kla : +d["num_kla_events"],
+          lat : +d["mean_latitude"],
+          long : +d["mean_longitude"]
+        };
+      }).then(function(data){
+        console.log(data[0])
+      }).catch(function(error){
+        console.log("ERROR");
+        console.log(error);
+      });
+
+      
+
+
+
+
+      document.getElementById("terrainradio").click();
+
+    </script>
+
+  </body>
+
+</html>
