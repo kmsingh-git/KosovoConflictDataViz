@@ -24,3 +24,5 @@ Moving on to Killings and Migrations, one would expect that there would be stron
 
 ### Data Source
 https://hrdag.org/kosovo-data/
+
+This was done for an Exploratory Data Analysis and Visualization course at Columbia University
