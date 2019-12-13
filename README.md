@@ -4,14 +4,14 @@ This visualization is to explore the spatial distribution of migrations, killing
 
 I calculated 4 different summary statistics per region, for each of 28 municipalities in the Kosovo region (the 29th region was missing longitude and latitude vaues), and the user can click on each dot to reveal the statistics corresponding to that region.
 
-Instructions:
+## Instructions:
 The user can first choose a Terrain/ Watercolor Rendering. This is simply to provide different perspectives of the Kosovo region.
 
 Then, the user can click on individual points and that will display the relevant data for that region under the Summary Statistics region. For instance, if you click on the dot at (Long 20.05, Lat 42.55), you will see that it is Municipality 2, it had 30115 Migrations during the specified time, etc.
 
 Finally, the user can choose which criterion is used to scale the size of dots. For any given criterion, say Migrations, the size of dot of the ith region, corresponds to the relative value of that criterion, compared to other regions. So if you observe Municipality 24 (Long 20.5, Lat 42.57), and the Migrations criterion is selected, the size of its dot will be relatively larger than other dots, because the number of Migrants from this region was relatively higher than that of other regions.
 
-Analysis:
+## Analysis:
 Through this visualization, you can observe some big picture spatial trends for important statistics, namely Number of Migrations, Killings, NATO Airstrikes and KLA clashes.
 
 The first observation one can make is that Most of the affected population was concentrated between Long (20, 21) and Lat (42.4, 43), since the sizes of dotes outside this range are relatively much smaller, no matter which criterion you use. This could be because of strategic reasons, perhaps this sub-region was more central in political or military importance than others. However, it could simply be because this was more densely populated than the remaining regions. To further this analysis, population data can be collected, and Relative Statistics can be collected, such as Migrations/ Populations for a given Municipality.
