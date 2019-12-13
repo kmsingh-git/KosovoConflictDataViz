@@ -1,0 +1,78 @@
+---
+title: "Preprocessing"
+author: "Kanak"
+date: "12/11/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+library(tidyverse)
+ 
+pcodes <- read_csv("kosovo-pcodes.csv")
+
+migrations <- read_csv("kosovo-migration-est.csv") %>%
+  mutate(mcode = as.integer(pcode/1000)) %>%
+  left_join(pcodes, by = "pcode")
+migrations_summary <- migrations %>%
+  group_by(mcode) %>%
+  summarize(mean_latitude = mean(latitude),
+            mean_longitude = mean(longitude),
+            total_migrations = sum(lvcnt)) %>%
+  ungroup()
+
+killings <- read_csv("kosovo-md_pub.csv") %>% 
+  select(c(sex, mcode, weight))
+killings_summary <- killings %>% group_by(mcode) %>% 
+  summarise(total_killings = as.integer(sum(weight))) %>%
+  ungroup()
+
+nato_airstrikes <- read_tsv("kosovo-nato_bombing_data.csv") %>%
+  transmute(mcode = municipality) %>%
+  group_by(mcode) %>%
+  summarise(nato_airstrikes = n()) %>%
+  ungroup()
+
+kla <- read_csv("kosovo-kla_activity.csv") %>%
+  group_by(mcode) %>%
+  summarise(num_kla_events = as.integer(sum(count))) %>%
+  ungroup()
+
+#KLA Activity
+
+summary_df <- killings_summary %>% 
+  inner_join(migrations_summary, by = "mcode") %>%
+  inner_join(nato_airstrikes, by = "mcode") %>%
+  left_join(kla, by = "mcode") #It's fine if this is Null
+write.csv(summary_df, "summary.csv", row.names = FALSE, quote = FALSE)
+```
+
+Migrations
+```{r}
+migrations <- read_csv("kosovo-migration-est.csv")
+print(sum(migrations$lvcnt))
+```
+
+Nato Airstrikes
+```{r}
+nato_airstrikes <- read_tsv("kosovo-nato_bombing_data.csv") %>%
+  transmute(mcode = municipality) %>%
+  group_by(mcode) %>%
+  summarise(nato_airstrikes = n()) %>%
+  ungroup()
+```
+
+KLA
+```{r}
+kla <- read_csv("kosovo-kla_activity.csv") %>%
+  group_by(mcode) %>%
+  summarise(num_kla_events = as.integer(sum(count))) %>%
+  ungroup()
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
