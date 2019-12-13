@@ -4,7 +4,7 @@ This visualization is to explore the spatial distribution of migrations, killing
 
 I calculated 4 different summary statistics per region, for each of 28 municipalities in the Kosovo region (the 29th region was missing longitude and latitude vaues), and the user can click on each dot to reveal the statistics corresponding to that region.
 
-[Link to Visualization] Interactive_Visualizations_Kosovo.html
+[Link to Visualization](Interactive_Visualizations_Kosovo.html)
 
 ## Instructions:
 The user can first choose a Terrain/ Watercolor Rendering. This is simply to provide different perspectives of the Kosovo region.
